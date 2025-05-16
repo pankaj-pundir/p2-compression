@@ -58,6 +58,7 @@ func main() {
 	http.HandleFunc("/compress", handleCompress)
 	http.HandleFunc("/download", handleDownload)
 	http.HandleFunc("/generateRandomFile", handleGenerateRandomFile)
+	http.HandleFunc("/file/", handleServeFile)
 
 	// Serve static files from the "ui" directory
 	http.Handle("/ui/", http.StripPrefix("/ui/", http.FileServer(http.Dir("ui"))))
@@ -68,6 +69,7 @@ func main() {
 }
 
 func version(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Handler called: version. Method: %s, URL: %s\n", r.Method, r.URL.Path)
 	info, ok := debug.ReadBuildInfo()
 	if !ok {
 		http.Error(w, "no build information available", 500)
@@ -79,16 +81,18 @@ func version(w http.ResponseWriter, r *http.Request) {
 }
 
 func serveIndex(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Handler called: serveIndex. Method: %s, URL: %s\n", r.Method, r.URL.Path)
 	http.ServeFile(w, r, "ui/index.html")
 }
 
 func handleUpload(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Handler called: handleUpload. Method: %s, URL: %s\n", r.Method, r.URL.Path)
 	if r.Method != "POST" {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	file, handler, err := r.FormFile("file")
+	file, _, err := r.FormFile("file")
 	if err != nil {
 		http.Error(w, "Error retrieving the file", http.StatusInternalServerError)
 		return
@@ -123,11 +127,13 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleCompress(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Handler called: handleCompress. Method: %s, URL: %s\n", r.Method, r.URL.Path)
 	// This handler will be implemented later to handle compression requests
 	fmt.Fprintf(w, "Compression initiated (handler not fully implemented yet)")
 }
 
 func handleDownload(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Handler called: handleDownload. Method: %s, URL: %s\n", r.Method, r.URL.Path)
 	// This handler will be implemented later to serve the compressed file
 	fmt.Fprintf(w, "Download handler (not fully implemented yet)")
 }
@@ -135,12 +141,15 @@ func handleDownload(w http.ResponseWriter, r *http.Request) {
 func handleGenerateRandomFile(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		log.Printf("Handler called: handleGenerateRandomFile. Method not allowed: %s\n", r.Method)
 		return
 	}
 
 	fileSizeStr := r.FormValue("size")
 	if fileSizeStr == "" {
 		http.Error(w, "Missing file size parameter", http.StatusBadRequest)
+
+		log.Printf("Handler called: handleGenerateRandomFile. Missing file size parameter.\n")
 		return
 	}
 
@@ -149,6 +158,7 @@ func handleGenerateRandomFile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid file size format", http.StatusBadRequest)
 		return
 	}
+	log.Printf("Handler called: handleGenerateRandomFile. Requested file size: %s\n", fileSizeStr)
 
 	err = os.MkdirAll("temp", os.ModePerm)
 	if err != nil {
@@ -172,7 +182,24 @@ func handleGenerateRandomFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Return the temporary filename to the client
-	fmt.Fprintf(w, tempFile.Name())
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(tempFile.Name()))
+}
+
+func handleServeFile(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Handler called: handleServeFile. Method: %s, URL: %s\n", r.Method, r.URL.Path)
+	if r.Method != "GET" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		log.Printf("Serving file: Method not allowed: %s\n", r.Method)
+		return
+	}
+	filename := r.URL.Path[len("/file/"):]
+	filePath := filename // Assuming files are in the current directory for now, adjust as needed
+
+	// Serve the file
+	http.ServeFile(w, r, filePath)
+	log.Printf("Serving file: %s\n", filePath)
+
 }
 
 // Helper function to parse file size string (e.g., "1MB", "10KB")

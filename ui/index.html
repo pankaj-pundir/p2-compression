@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Compression Tool</title>
+    <title>p2 - Compressions</title>
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Ace Editor -->
+    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.4.12/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.4.12/src-noconflict/mode-plain_text.js" type="text/javascript" charset="utf-8"></script>
+
     <style>
         body {
             font-family: 'Google Sans', sans-serif;
@@ -21,6 +25,8 @@
             background-color: #ffffff;
             border-radius: 8px;
             box-shadow: 0 1px 3px 0 rgba(60, 64, 67, 0.3), 0 4px 8px 3px rgba(60, 64, 67, 0.15);
+            /* Glassy effect */
+            backdrop-filter: blur(10px);
             padding: 40px;
             text-align: center;
             max-width: 600px;
@@ -36,6 +42,8 @@
         .drag-area {
             border: 2px dashed #dadce0;
             border-radius: 8px;
+            /* Glassy effect */
+            backdrop-filter: blur(5px);
             padding: 40px;
             margin-bottom: 30px;
             cursor: pointer;
@@ -163,9 +171,20 @@
             max-width: 400px;
             width: 80%;
             text-align: left;
+            backdrop-filter: blur(10px); /* Apply glassy effect to modal content */
         }
 
-        .modal-content h3 {
+        /* Styles for the popup window */
+        .popup-content {
+            font-family: 'Google Sans', sans-serif;
+            padding: 20px;
+            white-space: pre-wrap; /* Preserve whitespace and line breaks */
+            word-wrap: break-word; /* Break long words */
+            overflow-y: auto; /* Add scrollbar if content overflows */
+            max-height: 100vh; /* Limit height to viewport height */
+         }
+
+        .modal-content h3, .popup-content h3 {
             color: #1a73e8;
             margin-top: 0;
             margin-bottom: 20px;
@@ -195,7 +214,30 @@
             font-size: 28px;
             font-weight: bold;
         }
+
+        /* Sidebar Styles */
+        #sidebar {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 400px; /* Adjust width as needed */
+            height: 100%;
+            background-color: #ffffff;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+            z-index: 10;
+            display: none; /* Initially hidden */
+            flex-direction: column;
+        }
+
+        #sidebar .close {
+            padding: 10px;
+        }
     </style>
+    <style>
+        #sidebarEditor {
+            width: 100%;
+            height: 100%;
+        }</style>
 </head>
 <body>
     <div class="container">
@@ -203,8 +245,7 @@
 
         <div class="drag-area" id="dragArea">
             <p>Drag and drop your file here or click to select</p>
-            <input type="file" class="file-input" id="fileInput">
-            <button id="generateRandomFileBtn" style="margin-top: 20px; padding: 10px 20px; background-color: #f1f3f4; border: 1px solid #dadce0; border-radius: 4px; cursor: pointer; font-size: 1rem;">Generate Random File</button>
+            <input type="file" class="file-input" id="fileInput" />
         </div>
 
         <!-- New input field for file selection -->
@@ -223,6 +264,8 @@
         <div class="progress-bar-container">
             <div class="progress-bar" id="progressBar"></div>
         </div>
+
+        <button id="generateRandomFileButton" style="margin-top: 20px; padding: 10px 20px; background-color: #f1f3f4; border: 1px solid #dadce0; border-radius: 4px; cursor: pointer; font-size: 1rem;">Generate Random File</button>
 
         <div class="output-area" id="outputArea" style="display: none;">
             <h2>Compressed File</h2>
@@ -248,36 +291,70 @@
         </div>
     </div>
 
+    <div id="generatedFileInfo" style="display: none; margin-top: 20px; text-align: center;" draggable="true">
+        <h3>Generated File</h3>
+        <!-- Placeholder for file icon -->
+        <img src="https://www.gstatic.com/images/icons/material/system/1x/description_googblue_24dp.png" alt="File Icon" style="width: 40px; height: 40px; margin-bottom: 10px; cursor: pointer;" id="generatedFileIcon">
+ <p id="generatedFileName" style="font-weight: 500; color: #5f6368; display: inline-block; vertical-align: top; margin-left: 10px;"></p>
+    </div>
+
+    <!-- Sidebar for file content -->
+ <div id="sidebar" style="width: 0;">
+        <div class="sidebar-header">
+            <h3 id="sidebarFileName"></h3>
+            <span class="close-sidebar" id="closeSidebar">&times;</span>
+        </div>
+
+        <div id="sidebarEditor"></div>
+    </div>
+
+    <!-- Sidebar for file content -->
+    <div id="sidebar" style="width: 0; right: -400px; transition: right 0.3s ease-in-out;">
+        <div class="sidebar-header">
+            <h3 id="sidebarFileName"></h3>
+            <span class="close-sidebar" id="closeSidebar">&times;</span>
+        </div>
+
+        <div id="sidebarEditor"></div>
+    </div>
+
     <script>
         const dragArea = document.getElementById('dragArea');
         const fileInput = document.getElementById('fileInput');
         const manualFileInput = document.getElementById('manualFileInput'); // Get the new input field
+
         const progressBar = document.getElementById('progressBar');
+
+        const sidebar = document.getElementById('sidebar');
+        const closeSidebarBtn = document.getElementById('closeSidebar');
+        const sidebarFileNameElement = document.getElementById('sidebarFileName');
+        let editor = null; // Variable to hold the Ace Editor instance
+
         const outputArea = document.getElementById('outputArea');
         const originalFileSizeElement = document.getElementById('originalFileSize');
         const compressedFileSizeElement = document.getElementById('compressedFileSize');
         const compressionRatioElement = document.getElementById('compressionRatio');
-        const randomFileModal = document.getElementById('randomFileModal');
+        const randomFileModal = document.getElementById('randomFileModal'); // Keep reference for the modal
         const generateRandomFileBtn = document.getElementById('generateRandomFileBtn');
         const closeModalBtn = document.getElementById('closeModal');
         const generateFileBtn = document.getElementById('generateFileBtn');
         const outputFileName = document.getElementById('outputFileName');
         const downloadLink = document.getElementById('downloadLink');
-        const originalFileSizeElement = document.getElementById('originalFileSize');
-        const compressedFileSizeElement = document.getElementById('compressedFileSize');
-        const compressionRatioElement = document.getElementById('compressionRatio');
+        const generatedFileInfo = document.getElementById('generatedFileInfo');
+        const generatedFileNameElement = document.getElementById('generatedFileName');
+        const generateRandomFileButton = document.getElementById('generateRandomFileButton'); // New button
 
-        dragArea.addEventListener('click', () => {
-            fileInput.click();
-        });
 
         // Trigger the hidden manual file input when the drag area is clicked (in addition to drag/drop)
         dragArea.addEventListener('click', () => {
-            manualFileInput.click();
-        });
+            console.log('Drag area clicked, triggering file input.');
+ manualFileInput.click();});
+
+
 
         fileInput.addEventListener('change', (event) => {
-            handleFile(event.target.files[0]);
+ console.log('File selected via file input.');
+ handleFile(event.target.files[0]);
         });
 
         dragArea.addEventListener('dragover', (event) => {
@@ -286,18 +363,28 @@
         });
 
         dragArea.addEventListener('dragleave', () => {
+ console.log('Drag area mouse leave.');
             dragArea.style.borderColor = '#dadce0';
         });
 
         dragArea.addEventListener('drop', (event) => {
             event.preventDefault();
             dragArea.style.borderColor = '#dadce0';
-            handleFile(event.dataTransfer.files[0]);
+            console.log('Drop event on drag area.');
+            if (event.dataTransfer.files.length > 0) {
+                console.log('Dropped item is a file.');
+                handleFile(event.dataTransfer.files[0]);
+            } else {
+                console.log('Dropped item is from within the page.');
+                // Handle the case where the dropped item is the generated file
+                const filename = event.dataTransfer.getData('text/plain');
+                handleGeneratedFileDrop(filename);
+            }
         });
 
-        // Handle file selection from the new manual input
-        manualFileInput.addEventListener('change', (event) => {
+ manualFileInput.addEventListener('change', (event) => { // Handle file selection from the new manual input
             handleFile(event.target.files[0]);
+ console.log('File selected via manual file input.');
         });
 
         function handleFile(file) {
@@ -343,11 +430,17 @@
         }
 
         // Show the modal when the button is clicked
-        generateRandomFileBtn.onclick = function() {
-            randomFileModal.style.display = "flex"; // Use flex to center
-        }
+        generateRandomFileButton.addEventListener('click', () => {
+            // Clear previous generated file info when opening the modal
+ console.log('Generate Random File button clicked, opening modal.');
+            generatedFileInfo.style.display = 'none';
+            generatedFileNameElement.textContent = '';
+
+             randomFileModal.style.display = "flex"; // Use flex to center
+        });
 
         // Hide the modal when the close button is clicked
+ console.log('Close modal button clicked, closing modal.');
         closeModalBtn.onclick = function() {
             randomFileModal.style.display = "none";
         }
@@ -359,6 +452,144 @@
             }
         }
 
+        // Event listener for generating random file
+        generateFileBtn.addEventListener('click', () => {
+ console.log('Generate File button clicked, sending request to backend.');
+           
+
+            const fileSizeInput = document.getElementById('fileSize');
+            const fileSize = parseInt(fileSizeInput.value, 10);
+
+            if (isNaN(fileSize) || fileSize <= 0) {
+                alert('Please enter a valid positive number for the file size.');
+                return; // Stop the function execution if the input is invalid
+            }
+
+            const formData = new FormData();
+            formData.append('size', fileSize);
+
+
+
+            formData.append('size', fileSize);
+            fetch('/generateRandomFile', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.text())
+                .then(filename => {
+                    // Assuming the response text is just the filename
+                    randomFileModal.style.display = "none";
+
+                    // Clear previous compression results and any file selection related info
+ console.log('Random file generated:', filename);
+                    generatedFileInfo.style.display = "block";
+                    generatedFileNameElement.textContent = filename;
+                    outputArea.style.display = 'none';
+                }) // <-- Closing curly brace for the fetch .then block
+                .catch(error => {
+                    console.error('Error generating file:', error);
+                    alert('Failed to generate file.');
+                });
+        }); // <-- Closing curly brace for the generateFileBtn event listener
+
+        // Function to handle the drop of a generated file
+        function handleGeneratedFileDrop(filename) {if (!filename) {
+                console.log('No filename provided for generated file drop.');
+                return;
+            }
+
+            // Here you would typically fetch the file content and then call openSidebarWithContent
+
+            console.log('Handling dropped generated file:', filename);
+
+            // Simulate file processing (replace with actual compression logic later)
+            progressBar.style.width = '0';
+            outputArea.style.display = 'none';
+
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 10;
+                progressBar.style.width = progress + '%';
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    // For now, just display the generated file info again after "processing"
+                    generatedFileInfo.style.display = 'block';
+                }
+            }, 200);
+        }
+
+        // Function to handle the drop of a generated file
+        function handleGeneratedFileDrop(filename) {
+            if (!filename) {
+                console.log('No filename provided for generated file drop.');
+                return;
+            }
+
+            console.log('Handling dropped generated file:', filename);
+
+            // Simulate file processing (replace with actual compression logic later)
+            progressBar.style.width = '0';
+            outputArea.style.display = 'none';
+
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 10;
+                progressBar.style.width = progress + '%';
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    // For now, just display the generated file info again after "processing"
+                    generatedFileInfo.style.display = 'block';
+                }
+            }, 200);
+        }
+
+        // Event listener for clicking the generated file icon
+        document.getElementById('generatedFileIcon').addEventListener('click', () => {
+            const filename = generatedFileNameElement.textContent;
+                fetch(`/file/${filename}`) // This assumes the file is served from the root
+                    .then(response => response.text())
+                    .then(content => {
+ console.log('Fetching generated file content:', filename);
+                        // Open content in a new popup window
+                        const popup = window.open('', '_blank', 'width=700,height=500,scrollbars=yes');
+                        if (popup) {
+                            popup.document.write(
+                                `
+                                <!DOCTYPE html>
+                                <html>
+                                <head>
+                                    <meta charset="UTF-8">
+                                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                                    <title>${filename}</title>
+                                    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+                                    <style>
+                                        .popup-content { font-family: 'Google Sans', sans-serif; padding: 20px; white-space: pre-wrap; word-wrap: break-word; overflow-y: auto; max-height: 95vh; }
+                                    </style>
+                                </head>
+                                <body>
+                                    <h3>${filename}</h3>
+                                    <div id="editor" style="width: 100%; height: 90vh;"></div>
+                                    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.4.12/src-noconflict/ace.js"></script>
+                                    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.4.12/src-noconflict/mode-plain_text.js"></script>
+                                    <script>var editor = ace.edit("editor"); editor.setTheme("ace/theme/chrome"); editor.session.setMode("ace/mode/plain_text"); editor.setValue(\`${content}\`, -1); editor.setOptions({ readOnly: true, highlightActiveLine: false, highlightGutterLine: false });</script>
+                                </html>
+                                `
+                             );
+
+                            popup.document.close();
+                        } else {
+                            alert('Could not open popup. Please allow popups for this site.');
+                        }
+                    })
+                    .catch(error => console.error('Error fetching file content:', error));
+            })
+    </script>
+    <script>
+        // Make the generated file info draggable
+        generatedFileInfo.addEventListener('dragstart', (event) => {
+            console.log('Generated file info drag started.');
+            event.dataTransfer.setData('text/plain', generatedFileNameElement.textContent);
+        });
     </script>
 </body>
 </html>
