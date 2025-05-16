@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Compression Tool</title>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Google Sans', sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #3c4043;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px 0 rgba(60, 64, 67, 0.3), 0 4px 8px 3px rgba(60, 64, 67, 0.15);
+            padding: 40px;
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+        }
+
+        h1 {
+            color: #1a73e8;
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+
+        .drag-area {
+            border: 2px dashed #dadce0;
+            border-radius: 8px;
+            padding: 40px;
+            margin-bottom: 30px;
+            cursor: pointer;
+            transition: border-color 0.3s ease-in-out;
+        }
+
+        .drag-area:hover {
+            border-color: #1a73e8;
+        }
+
+        .drag-area p {
+            margin: 0;
+            color: #5f6368;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .algorithm-select {
+            margin-bottom: 30px;
+        }
+
+        .algorithm-select label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: #5f6368;
+        }
+
+        .algorithm-select select {
+            padding: 12px;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            font-size: 1rem;
+            color: #3c4043;
+            width: 100%;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.3s ease-in-out;
+        }
+
+        .algorithm-select select:focus {
+            border-color: #1a73e8;
+            box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e8eaed;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            height: 8px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0;
+            background-color: #1a73e8;
+            border-radius: 4px;
+            transition: width 0.3s ease-in-out;
+        }
+
+        .output-area {
+            border-top: 1px solid #dadce0;
+            padding-top: 30px;
+        }
+
+        .output-area h2 {
+            color: #1a73e8;
+            margin-bottom: 15px;
+            font-weight: 500;
+            font-size: 1.2rem;
+        }
+
+         .output-area .file-info {
+            margin-bottom: 20px;
+            font-weight: 500;
+            font-size: 1.2rem;
+        }
+
+        .output-area p {
+            color: #5f6368;
+            margin-bottom: 20px;
+        }
+
+        .download-link {
+            display: inline-block;
+            background-color: #1a73e8;
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        .download-link:hover {
+            background-color: #174ea6;
+        }
+    </style>
+    <style>
+        /* Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            margin: auto;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+            max-width: 400px;
+            width: 80%;
+            text-align: left;
+        }
+
+        .modal-content h3 {
+            color: #1a73e8;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .modal-content label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: #5f6368;
+        }
+
+        .modal-content input[type="number"] {
+            padding: 10px;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            font-size: 1rem;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>File Compression Tool</h1>
+
+        <div class="drag-area" id="dragArea">
+            <p>Drag and drop your file here or click to select</p>
+            <input type="file" class="file-input" id="fileInput">
+            <button id="generateRandomFileBtn" style="margin-top: 20px; padding: 10px 20px; background-color: #f1f3f4; border: 1px solid #dadce0; border-radius: 4px; cursor: pointer; font-size: 1rem;">Generate Random File</button>
+        </div>
+
+        <!-- New input field for file selection -->
+        <input type="file" id="manualFileInput" style="display: none;">
+
+
+        <div class="algorithm-select">
+            <label for="compressionAlgorithm">Select Compression Algorithm:</label>
+            <select id="compressionAlgorithm">
+                <option value="7zip">7zip</option>
+                <option value="huffman">Huffman Coding</option>
+                <option value="paq">PAQ</option>
+            </select>
+        </div>
+
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div class="output-area" id="outputArea" style="display: none;">
+            <h2>Compressed File</h2>
+            <div class="file-info">
+                <p id="originalFileSize"></p>
+                <p id="compressedFileSize"></p>
+                <p id="compressionRatio"></p>
+            </div>
+            <p id="outputFileName"></p>
+            <a href="" class="download-link" id="downloadLink">Download File</a>
+        </div>
+    </div>
+
+    <!-- The Modal -->
+    <div id="randomFileModal" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <h3>Generate Random Text File</h3>
+            <label for="fileSize">Enter File Size (in Bytes):</label>
+            <input type="number" id="fileSize" name="fileSize" min="1" value="1024">
+            <button id="generateFileBtn" style="padding: 10px 20px; background-color: #1a73e8; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem;">Generate File</button>
+        </div>
+    </div>
+
+    <script>
+        const dragArea = document.getElementById('dragArea');
+        const fileInput = document.getElementById('fileInput');
+        const manualFileInput = document.getElementById('manualFileInput'); // Get the new input field
+        const progressBar = document.getElementById('progressBar');
+        const outputArea = document.getElementById('outputArea');
+        const originalFileSizeElement = document.getElementById('originalFileSize');
+        const compressedFileSizeElement = document.getElementById('compressedFileSize');
+        const compressionRatioElement = document.getElementById('compressionRatio');
+        const randomFileModal = document.getElementById('randomFileModal');
+        const generateRandomFileBtn = document.getElementById('generateRandomFileBtn');
+        const closeModalBtn = document.getElementById('closeModal');
+        const generateFileBtn = document.getElementById('generateFileBtn');
+        const outputFileName = document.getElementById('outputFileName');
+        const downloadLink = document.getElementById('downloadLink');
+        const originalFileSizeElement = document.getElementById('originalFileSize');
+        const compressedFileSizeElement = document.getElementById('compressedFileSize');
+        const compressionRatioElement = document.getElementById('compressionRatio');
+
+        dragArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // Trigger the hidden manual file input when the drag area is clicked (in addition to drag/drop)
+        dragArea.addEventListener('click', () => {
+            manualFileInput.click();
+        });
+
+        fileInput.addEventListener('change', (event) => {
+            handleFile(event.target.files[0]);
+        });
+
+        dragArea.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            dragArea.style.borderColor = '#1a73e8';
+        });
+
+        dragArea.addEventListener('dragleave', () => {
+            dragArea.style.borderColor = '#dadce0';
+        });
+
+        dragArea.addEventListener('drop', (event) => {
+            event.preventDefault();
+            dragArea.style.borderColor = '#dadce0';
+            handleFile(event.dataTransfer.files[0]);
+        });
+
+        // Handle file selection from the new manual input
+        manualFileInput.addEventListener('change', (event) => {
+            handleFile(event.target.files[0]);
+        });
+
+        function handleFile(file) {
+            if (file) {
+                console.log("File selected:", file.name);
+                originalFileSizeElement.textContent = `Original Size: ${formatBytes(file.size)}`;
+                compressedFileSizeElement.textContent = '';
+                // Simulate file processing
+                progressBar.style.width = '0';
+                outputArea.style.display = 'none';
+
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 10;
+                    progressBar.style.width = progress + '%';
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                        // Simulate compressed file size and ratio (replace with actual backend data)
+                        const simulatedCompressedSize = file.size * 0.5; // Example 50% compression
+                        displayOutputFile(file.name, file.size, simulatedCompressedSize);
+                    }
+                }, 200);
+            }
+        }
+
+        function displayOutputFile(originalFileName, originalSize, compressedSize) {
+            const compressedFileName = originalFileName + '.compressed'; // Example naming
+            compressedFileSizeElement.textContent = `Compressed Size: ${formatBytes(compressedSize)}`;
+            const ratio = ((originalSize - compressedSize) / originalSize) * 100;
+            compressionRatioElement.textContent = `Compression Ratio: ${ratio.toFixed(2)}%`;
+            outputFileName.textContent = `Your file "${compressedFileName}" is ready.`;
+            downloadLink.href = '#'; // Replace with actual download link from backend
+            outputArea.style.display = 'block';
+        }
+
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+
+        // Show the modal when the button is clicked
+        generateRandomFileBtn.onclick = function() {
+            randomFileModal.style.display = "flex"; // Use flex to center
+        }
+
+        // Hide the modal when the close button is clicked
+        closeModalBtn.onclick = function() {
+            randomFileModal.style.display = "none";
+        }
+
+        // Hide the modal when clicking outside of it
+        window.onclick = function(event) {
+            if (event.target == randomFileModal) {
+                randomFileModal.style.display = "none";
+            }
+        }
+
+    </script>
+</body>
+</html>
