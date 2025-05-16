@@ -1,60 +1,67 @@
-@import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
 
 body {
-    font-family: 'SF Pro Display', sans-serif;
+    font-family: 'Inter', sans-serif;
     background-color: #f8f9fa;
- background-image: linear-gradient(to bottom right, #a1c4fd 0%, #c2e9fb 100%); /* Lighter, softer gradient for Apple feel */
-    color: #1a1a1a; /* Darker text for better contrast on light glass */
+    /* Updated gradient for a more modern, subtle Apple-like feel */
+    background: linear-gradient(135deg, #f0f0f0 0%, #ffffff 100%);
+    color: #1a1a1a;
     line-height: 1.6;
     margin: 0;
     display: flex;
-    justify-content: flex-start; /* Align items to the start for sidebar */
-    align-items: center;
+    /* Center the container both horizontally and vertically */
+    justify-content: center;
+    align-items: flex-start; /* Align items to the top, centering is handled by justify-content */
     min-height: 100vh;
     padding: 20px;
+    box-sizing: border-box; /* Include padding in element's total width and height */
 }
 
+
 .container {
-    background: rgba(255, 255, 255, 0.1); /* Semi-transparent white */
- border: 1px solid rgba(255, 255, 255, 0.2); /* More subtle border */
+    background: rgba(200, 200, 200, 0.1); /* Slightly darker semi-transparent grey */
+    border: 1px solid rgba(200, 200, 200, 0.2); /* More subtle grey border */
     backdrop-filter: blur(15px); /* Increased blur */
     -webkit-backdrop-filter: blur(15px); /* For Safari */
     border-radius: 8px;
- box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08); /* Softer shadow */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08); /* Softer shadow */
     padding: 30px;
     text-align: center;
-    max-width: 600px;
+    /* Make container more fluid */
+    max-width: 700px;
     width: 100%;
+    /* Add some margin for vertical spacing when content is taller than viewport */
+    margin: 20px auto;
 }
 
 h1 {
-    color: #333; /* Darker color for header */
+    color: #333;
     margin-bottom: 30px;
     font-weight: 500;
 }
 
 .drag-area {
-    border: 2px dashed #dadce0;
+    /* Adjusted styles for a cleaner glassy look */
+    border: 1px dashed rgba(150, 150, 150, 0.1); /* Softer dashed grey border */
     border-radius: 8px;
-    padding: 40px 20px;
+    padding: 40px 20px; /* Corrected padding */
     transition: border-color 0.3s ease-in-out;
-    background: rgba(255, 255, 255, 0.05); /* Lighter semi-transparent */
- border: 1px dashed rgba(255, 255, 255, 0.2); /* More subtle dashed border */
+    background: rgba(255, 255, 255, 0.5); /* More opaque for better contrast */
     backdrop-filter: blur(5px); /* Subtle blur */
     -webkit-backdrop-filter: blur(5px); /* For Safari */
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); /* Shadow for depth */
- box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); /* More prominent shadow */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Lighter shadow */
+    cursor: pointer;
+    margin-bottom: 20px; /* Add bottom margin */
 }
 
 .drag-area.active {
-    border: 2px solid rgba(255, 255, 255, 0.4); /* Highlight with a clearer border */
+    border: 2px solid rgba(220, 220, 220, 0.4); /* Highlight with a clearer grey border */
 }
 
-.drop-area p {
-    color: #444; /* Darker text */
-    margin: 0;
+.drag-area p { /* Changed from drop-area */
+    color: #444;
+    margin: 0; /* Ensure no extra margin */ /* Corrected margin */
     font-size: 1.1em;
-    font-size: 1.1em; /* Keeping font size same */
 }
 
 .file-input {
@@ -68,22 +75,21 @@ h1 {
 .algorithm-select label {
     display: block;
     margin-bottom: 8px;
-    color: #444; /* Darker text */
+    color: #555; /* Slightly lighter grey */
     font-weight: 500;
     text-align: left;
 }
 
 .algorithm-select select {
     padding: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.2); /* Lighter border */
-    border-radius: 4px;
+    border: 1px solid rgba(0, 0, 0, 0.1); /* Softer border */
+    border-radius: 6px;
     font-size: 1em;
-    color: #eee; /* Lighter text */
+    color: #1a1a1a; /* Darker text */
     background: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
-    backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px); /* Corrected backdrop-filter property name */
     -webkit-backdrop-filter: blur(5px); /* For Safari */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Shadow for select */
- box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); /* More prominent shadow */
+    width: 100%; /* Make select full width */
     -webkit-appearance: none; /* Remove default browser styles */
     -moz-appearance: none;
     appearance: none;
@@ -91,25 +97,26 @@ h1 {
 
 .progress-area {
     width: 100%;
-    background: rgba(255, 255, 255, 0.2); /* Slightly more visible background for progress */
+    /* Adjusted progress bar background */
+    background-color: #d0d0d0; /* Slightly darker grey */
     border-radius: 4px;
     overflow: hidden;
     margin-bottom: 20px;
-    height: 10px;
+    height: 8px; /* Match the original design */
     display: none; /* Initially hidden */
 }
 
 .progress-bar {
-    width: 0%;
+    width: 0;
     height: 10px; /* Match container height */
     background-color: #1a73e8;
-    transition: width 0.3s ease-in-out;
+    transition: width 0.4s ease; /* Slightly slower and smoother transition */
 }
 
 .output-area {
     margin-top: 20px;
-    border-top: 1px solid #eee;
-    padding-top: 30px; /* More space above */
+    border-top: 1px solid #ddd; /* Slightly darker grey border */
+    padding-top: 30px;
 }
 
 .output-area h2 {
@@ -119,54 +126,88 @@ h1 {
     font-weight: 500;
 }
 
-.download-link,
-#generateRandomFileButton { /* Apply glassy styles to specific buttons */
+.styled-button { /* Moved to the correct section */
     display: inline-block;
-    background: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
-    border: 1px solid rgba(255, 255, 255, 0.2); /* Lighter border */
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px); /* For Safari */
- box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Softer shadow */
-    color: #333; /* Darker text for buttons */
-    padding: 12px 25px; /* Slightly larger padding */
+    background-color: #007aff; /* Apple blue */
+    color: #ffffff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: 500;
+    text-align: center;
     text-decoration: none;
-    border-radius: 4px;
-    transition: all 0.3s ease-in-out; /* Transition all properties */
- cursor: pointer;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
 }
 
-#generateRandomFileButton:hover,
+.styled-button:hover {
+    background-color: #005bb5; /* Darker blue on hover */
+}
+
+#generateRandomFileButton {
+    margin-top: 10px;
+    margin-bottom: 20px; /* Add bottom margin */
+}
+
+#runCompressionButton {
+    /* Style for the new Run Compression button */
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding: 12px 25px; /* Larger padding */
+    font-size: 1.1em;
+}
+
+.download-link {
+    /* Specific style adjustments for download link */
+    background-color: #34c759; /* Apple green */
+    margin-top: 15px;
+}
+
 .download-link:hover {
-    background: rgba(255, 255, 255, 0.2); /* Slightly more opaque on hover */
+    background-color: #2e8b4c; /* Darker green on hover */
 }
 
-.file-info {
- margin-top: 20px;
+/* New styles for metrics visualization (tabular/list-like) */
+.metrics-container {
+    margin-top: 20px;
+    border-top: 1px solid rgba(180, 180, 180, 0.1); /* Subtle grey border */
+    padding-top: 20px;
     text-align: left;
-    color: #ddd; /* Lighter text */
-    font-size: 1em; /* Slightly larger font size */
-    color: #444; /* Darker text */
+    background: rgba(255, 255, 255, 0.5); /* Semi-transparent background */
+    backdrop-filter: blur(5px);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
-.file-info p {
- margin: 5px 0;
+.metrics-container h3 {
+    color: #333;
+    font-size: 1.1em;
+    margin-top: 0;
+    margin-bottom: 15px; /* Corrected margin */
+    font-weight: 500;
 }
-.compression-ratio {
- font-weight: 500;
- color: #1a73e8;
+
+.metrics-list {
+    list-style: none; /* Remove default list styling */
+    padding: 0;
+    margin-top: 20px;
+    text-align: left;
+    font-size: 1em;
+    color: #444;
 }
 
 /* Modal Styles */
 .modal {
     display: none; /* Hidden by default */
- position: fixed; /* Stay in place */
+    position: fixed;
     z-index: 1000; /* Sit on top */
     left: 0;
     top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
+    width: 100%;
+    height: 100%;
     overflow: hidden; /* Prevent scroll on modal background */
-    background: rgba(0, 0, 0, 0.2); /* Lighter semi-transparent background */
     justify-content: center;
  align-items: center;
     display: flex; /* Use flexbox for centering */ /* This is already set to flex in the JS to show */
@@ -174,21 +215,21 @@ h1 {
 
 .modal-content {
  background: rgba(255, 255, 255, 0.25); /* Slightly more opaque for content */
- border: 1px solid rgba(255, 255, 255, 0.5); /* Clearer border for modal content */
-    background-color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.5); /* Clearer border for modal content */
     margin: auto;
     padding: 30px;
     border-radius: 8px;
- box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); /* Softer shadow */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); /* Softer shadow */
+    /* Removed background-color: #ffffff; to rely on rgba background */ /* Corrected comment */
     backdrop-filter: blur(20px); /* Increased blur */
     max-width: 400px;
-    width: 90%;
+    width: 90%; /* Use percentage for responsiveness */
     text-align: left;
     position: relative; /* For close button positioning */
 }
 
 .close-button {
- color: #fff; /* White close button */
+    color: #fff; /* White close button */
     float: right;
     font-size: 28px;
     font-weight: bold;
@@ -199,15 +240,15 @@ h1 {
 }
 
 .close-button:hover,
-.close-button:focus { /* Adjusted hover color */
-    color: #777;
+.close-button:focus {
+    color: #ddd; /* Lighter hover color */
     text-decoration: none;
 }
 
 .modal-content h3 {
     color: #333; /* Darker header */
-    margin-top: 0;
-    margin-bottom: 20px;
+    margin-top: 0; /* Ensure no top margin */
+    margin-bottom: 20px; /* Corrected margin */
     font-weight: 500;
 }
 
@@ -218,51 +259,49 @@ h1 {
 }
 
 .modal-content input[type="number"] {
-    width: calc(100% - 22px); /* Adjust for padding and border */
+    /* Adjusted input width and styling */
+    width: 100%;
     padding: 10px;
- margin-bottom: 20px;
-    border: 1px solid #dadce0;
-    border: 1px solid rgba(255, 255, 255, 0.3); /* Slightly clearer border */
+    margin-bottom: 15px; /* Adjust margin */
+    border: 1px solid rgba(220, 220, 220, 0.3); /* Slightly clearer grey border */
     border-radius: 4px;
     font-size: 1em;
-    color: #1a1a1a; /* Darker text */
+    color: #1a1a1a;
     backdrop-filter: blur(5px); /* Subtle blur */
     -webkit-backdrop-filter: blur(5px); /* For Safari */
 }
-
-
-#generateFileBtn { /* Target the specific button within the modal */
-    background: rgba(26, 115, 232, 0.7); /* Semi-transparent blue for the button */
+/* Button styles moved to .styled-button */
+.modal-content button { /* Target buttons within modal */
+    background-color: #007aff; /* Use Apple blue */
     color: #fff; /* White text */
     padding: 10px 20px;
     border: none;
-    border-radius: 4px;
-    font-size: 1rem; /* Consistent font size */
+    font-size: 1rem;
     transition: background 0.3s ease;
- box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Softer shadow */
- cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Softer shadow */
+    cursor: pointer;
 }
 
 
-.modal-content button:hover { /* Target the specific button within the modal */
-    background: rgba(26, 115, 232, 0.85); /* Slightly more opaque on hover */
+.modal-content button:hover {
+    background-color: #005bb5; /* Darker blue on hover */
 }
 
 #generateFileButton {
-    margin-top: 20px;
- cursor: pointer;
+    /* Added margin-top for spacing */
+    margin-top: 10px;
 }
 
 /* Sidebar Styles */
 #sidebar {
     position: fixed;
-    right: 0;
+    right: -400px; /* Use right property for positioning */
     width: 0; /* Initially hidden */
     height: 100%;
     background: rgba(255, 255, 255, 0.15); /* Semi-transparent background */
     backdrop-filter: blur(15px); /* Glassy effect */
     -webkit-backdrop-filter: blur(15px); /* For Safari */
-    box-shadow: -4px 0 15px rgba(0, 0, 0, 0.2); /* Shadow on the left */
+    box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1); /* Lighter shadow on the left */
     overflow-y: auto;
     transition: width 0.3s ease-in-out; /* Smooth transition for width */
     z-index: 100; /* Above main content, below modal */
@@ -284,10 +323,10 @@ h1 {
 }
 
 #sidebar .close-button {
-    position: absolute;
+    position: sticky; /* Make close button sticky */
     top: 10px;
     right: 20px; /* Match content padding */
     color: #333; /* Darker close button */
     font-size: 28px;
  cursor: pointer;
-}
+}/* Corrected closing curly brace */

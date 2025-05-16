@@ -16,9 +16,11 @@ import (
 	"html"
 	"io"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"runtime/debug"
+	"time"
 )
 
 func usage() {
@@ -59,6 +61,7 @@ func main() {
 	http.HandleFunc("/download", handleDownload)
 	http.HandleFunc("/generateRandomFile", handleGenerateRandomFile)
 	http.HandleFunc("/file/", handleServeFile)
+	http.HandleFunc("/file-details/", handleFileDetails)
 
 	// Serve static files from the "ui" directory
 	http.Handle("/ui/", http.StripPrefix("/ui/", http.FileServer(http.Dir("ui"))))
@@ -172,18 +175,35 @@ func handleGenerateRandomFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer tempFile.Close()
+	content := generateRandomTextContent(fileSize)
+
+	_, err = tempFile.WriteString(content)
+	if err != nil {
+		http.Error(w, "Error writing to temporary file", http.StatusInternalServerError)
+		return
+	}
 
 	// TODO: Implement actual random text generation of the specified size
 	// For now, just create an empty file of the requested size
-	err = tempFile.Truncate(fileSize)
-	if err != nil {
-		http.Error(w, "Error setting file size", http.StatusInternalServerError)
-		return
-	}
+	// err = tempFile.Truncate(fileSize)
+	// if err != nil {
+	// 	http.Error(w, "Error setting file size", http.StatusInternalServerError)
+	// 	return
+	// }
 
 	// Return the temporary filename to the client
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(tempFile.Name()))
+}
+
+func generateRandomTextContent(size int64) string {
+	rand.Seed(time.Now().UnixNano())
+	chars := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 .,\n" // Include printable characters
+	result := make([]byte, size)
+	for i := int64(0); i < size; i++ {
+		result[i] = chars[rand.Intn(len(chars))]
+	}
+	return string(result)
 }
 
 func handleServeFile(w http.ResponseWriter, r *http.Request) {
@@ -199,6 +219,32 @@ func handleServeFile(w http.ResponseWriter, r *http.Request) {
 	// Serve the file
 	http.ServeFile(w, r, filePath)
 	log.Printf("Serving file: %s\n", filePath)
+
+}
+
+func handleFileDetails(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Handler called: handleFileDetails. Method: %s, URL: %s\n", r.Method, r.URL.Path)
+	if r.Method != "GET" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		log.Printf("File details: Method not allowed: %s\n", r.Method)
+		return
+	}
+	filename := r.URL.Path[len("/file-details/"):]
+	filePath := filename // Assuming files are in the current directory for now, adjust as needed
+	fileInfo, err := os.Stat(filePath)
+
+	if err != nil {
+		http.Error(w, "File not found", http.StatusNotFound)
+		log.Printf("File details: File not found: %s\n", filePath)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/plain")
+	w.WriteHeader(http.StatusOK)
+	// fmt.Fprintf(w, "File Name: %s\n", fileInfo.Name())
+	// fmt.Fprintf(w, "File Size: %d bytes\n", fileInfo.Size())
+
+	log.Printf("File details: File name: %s, File size: %d bytes\n", fileInfo.Name(), fileInfo.Size())
 
 }
 

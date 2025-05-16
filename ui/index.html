@@ -1,260 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>p2 - Compressions</title>
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Ace Editor -->
-    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.4.12/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
-    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.4.12/src-noconflict/mode-plain_text.js" type="text/javascript" charset="utf-8"></script>
+    <link rel="stylesheet" href="ui/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.4.12/src-noconflict/ace.js" type="text/javascript"
+        charset="utf-8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.4.12/src-noconflict/mode-plain_text.js"
+        type="text/javascript" charset="utf-8"></script>
 
-    <style>
-        body {
-            font-family: 'Google Sans', sans-serif;
-            background-color: #f8f9fa;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            color: #3c4043;
-        }
-
-        .container {
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px 0 rgba(60, 64, 67, 0.3), 0 4px 8px 3px rgba(60, 64, 67, 0.15);
-            /* Glassy effect */
-            backdrop-filter: blur(10px);
-            padding: 40px;
-            text-align: center;
-            max-width: 600px;
-            width: 90%;
-        }
-
-        h1 {
-            color: #1a73e8;
-            margin-bottom: 30px;
-            font-weight: 500;
-        }
-
-        .drag-area {
-            border: 2px dashed #dadce0;
-            border-radius: 8px;
-            /* Glassy effect */
-            backdrop-filter: blur(5px);
-            padding: 40px;
-            margin-bottom: 30px;
-            cursor: pointer;
-            transition: border-color 0.3s ease-in-out;
-        }
-
-        .drag-area:hover {
-            border-color: #1a73e8;
-        }
-
-        .drag-area p {
-            margin: 0;
-            color: #5f6368;
-        }
-
-        .file-input {
-            display: none;
-        }
-
-        .algorithm-select {
-            margin-bottom: 30px;
-        }
-
-        .algorithm-select label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: 500;
-            color: #5f6368;
-        }
-
-        .algorithm-select select {
-            padding: 12px;
-            border: 1px solid #dadce0;
-            border-radius: 4px;
-            font-size: 1rem;
-            color: #3c4043;
-            width: 100%;
-            box-sizing: border-box;
-            outline: none;
-            transition: border-color 0.3s ease-in-out;
-        }
-
-        .algorithm-select select:focus {
-            border-color: #1a73e8;
-            box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
-        }
-
-        .progress-bar-container {
-            width: 100%;
-            background-color: #e8eaed;
-            border-radius: 4px;
-            margin-bottom: 30px;
-            height: 8px;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            height: 100%;
-            width: 0;
-            background-color: #1a73e8;
-            border-radius: 4px;
-            transition: width 0.3s ease-in-out;
-        }
-
-        .output-area {
-            border-top: 1px solid #dadce0;
-            padding-top: 30px;
-        }
-
-        .output-area h2 {
-            color: #1a73e8;
-            margin-bottom: 15px;
-            font-weight: 500;
-            font-size: 1.2rem;
-        }
-
-         .output-area .file-info {
-            margin-bottom: 20px;
-            font-weight: 500;
-            font-size: 1.2rem;
-        }
-
-        .output-area p {
-            color: #5f6368;
-            margin-bottom: 20px;
-        }
-
-        .download-link {
-            display: inline-block;
-            background-color: #1a73e8;
-            color: #ffffff;
-            padding: 12px 24px;
-            border-radius: 4px;
-            text-decoration: none;
-            font-weight: 500;
-            transition: background-color 0.3s ease-in-out;
-        }
-
-        .download-link:hover {
-            background-color: #174ea6;
-        }
-    </style>
-    <style>
-        /* Modal Styles */
-        .modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 1; /* Sit on top */
-            left: 0;
-            top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background-color: #ffffff;
-            margin: auto;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
-            max-width: 400px;
-            width: 80%;
-            text-align: left;
-            backdrop-filter: blur(10px); /* Apply glassy effect to modal content */
-        }
-
-        /* Styles for the popup window */
-        .popup-content {
-            font-family: 'Google Sans', sans-serif;
-            padding: 20px;
-            white-space: pre-wrap; /* Preserve whitespace and line breaks */
-            word-wrap: break-word; /* Break long words */
-            overflow-y: auto; /* Add scrollbar if content overflows */
-            max-height: 100vh; /* Limit height to viewport height */
-         }
-
-        .modal-content h3, .popup-content h3 {
-            color: #1a73e8;
-            margin-top: 0;
-            margin-bottom: 20px;
-            font-weight: 500;
-        }
-
-        .modal-content label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: 500;
-            color: #5f6368;
-        }
-
-        .modal-content input[type="number"] {
-            padding: 10px;
-            border: 1px solid #dadce0;
-            border-radius: 4px;
-            font-size: 1rem;
-            width: 100%;
-            box-sizing: border-box;
-            margin-bottom: 20px;
-        }
-
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        /* Sidebar Styles */
-        #sidebar {
-            position: fixed;
-            right: 0;
-            top: 0;
-            width: 400px; /* Adjust width as needed */
-            height: 100%;
-            background-color: #ffffff;
-            box-shadow: -2px 0 5px rgba(0,0,0,0.2);
-            z-index: 10;
-            display: none; /* Initially hidden */
-            flex-direction: column;
-        }
-
-        #sidebar .close {
-            padding: 10px;
-        }
-    </style>
-    <style>
-        #sidebarEditor {
-            width: 100%;
-            height: 100%;
-        }</style>
 </head>
+
 <body>
     <div class="container">
         <h1>File Compression Tool</h1>
 
-        <div class="drag-area" id="dragArea">
+        <div class="drag-area" id="dragArea" role="button" aria-label="Drag and drop file or click to select">
             <p>Drag and drop your file here or click to select</p>
             <input type="file" class="file-input" id="fileInput" />
         </div>
 
-        <!-- New input field for file selection -->
         <input type="file" id="manualFileInput" style="display: none;">
 
-
         <div class="algorithm-select">
-            <label for="compressionAlgorithm">Select Compression Algorithm:</label>
-            <select id="compressionAlgorithm">
+            <label for="compressionAlgorithm">Select Compression Algorithm:</label><select id="compressionAlgorithm">
                 <option value="7zip">7zip</option>
                 <option value="huffman">Huffman Coding</option>
                 <option value="paq">PAQ</option>
@@ -265,161 +38,89 @@
             <div class="progress-bar" id="progressBar"></div>
         </div>
 
-        <button id="generateRandomFileButton" style="margin-top: 20px; padding: 10px 20px; background-color: #f1f3f4; border: 1px solid #dadce0; border-radius: 4px; cursor: pointer; font-size: 1rem;">Generate Random File</button>
+        <div class="buttons-container">
+            <button id="runCompressionBtn" class="action-button">Run Compression</button>
+            <button id="generateRandomFileButton" class="action-button secondary-button">Generate Random File</button>
+        </div>
 
+
+
+        <!-- Metrics Display Area -->
         <div class="output-area" id="outputArea" style="display: none;">
             <h2>Compressed File</h2>
-            <div class="file-info">
-                <p id="originalFileSize"></p>
-                <p id="compressedFileSize"></p>
-                <p id="compressionRatio"></p>
-            </div>
+            <table class="metrics-table">
+                <tr>
+
+                    <td>Original Size:</td>
+                    <td id="originalFileSize"></td>
+                </tr>
+                <tr>
+                    <td>Compressed Size:</td>
+                    <td id="compressedFileSize"></td>
+                </tr>
+                <tr>
+                    <td>Compression Ratio:</td>
+                    <td id="compressionRatio"></td>
+                </tr>
+            </table>
             <p id="outputFileName"></p>
             <a href="" class="download-link" id="downloadLink">Download File</a>
         </div>
     </div>
 
-    <!-- The Modal -->
     <div id="randomFileModal" class="modal">
-        <!-- Modal content -->
         <div class="modal-content">
             <span class="close" id="closeModal">&times;</span>
             <h3>Generate Random Text File</h3>
             <label for="fileSize">Enter File Size (in Bytes):</label>
             <input type="number" id="fileSize" name="fileSize" min="1" value="1024">
-            <button id="generateFileBtn" style="padding: 10px 20px; background-color: #1a73e8; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem;">Generate File</button>
+
+            <button id="generateFileBtn">Generate File</button>
         </div>
+
+    </div>
     </div>
 
-    <div id="generatedFileInfo" style="display: none; margin-top: 20px; text-align: center;" draggable="true">
+    <!-- Generated Files List -->
+    <div id="generatedFileList" style="display: none;">
         <h3>Generated File</h3>
-        <!-- Placeholder for file icon -->
-        <img src="https://www.gstatic.com/images/icons/material/system/1x/description_googblue_24dp.png" alt="File Icon" style="width: 40px; height: 40px; margin-bottom: 10px; cursor: pointer;" id="generatedFileIcon">
- <p id="generatedFileName" style="font-weight: 500; color: #5f6368; display: inline-block; vertical-align: top; margin-left: 10px;"></p>
     </div>
 
-    <!-- Sidebar for file content -->
- <div id="sidebar" style="width: 0;">
+
+    <div id="sidebar">
         <div class="sidebar-header">
             <h3 id="sidebarFileName"></h3>
             <span class="close-sidebar" id="closeSidebar">&times;</span>
         </div>
-
-        <div id="sidebarEditor"></div>
-    </div>
-
-    <!-- Sidebar for file content -->
-    <div id="sidebar" style="width: 0; right: -400px; transition: right 0.3s ease-in-out;">
-        <div class="sidebar-header">
-            <h3 id="sidebarFileName"></h3>
-            <span class="close-sidebar" id="closeSidebar">&times;</span>
-        </div>
-
         <div id="sidebarEditor"></div>
     </div>
 
     <script>
         const dragArea = document.getElementById('dragArea');
         const fileInput = document.getElementById('fileInput');
-        const manualFileInput = document.getElementById('manualFileInput'); // Get the new input field
-
+        const manualFileInput = document.getElementById('manualFileInput');
         const progressBar = document.getElementById('progressBar');
-
-        const sidebar = document.getElementById('sidebar');
-        const closeSidebarBtn = document.getElementById('closeSidebar');
-        const sidebarFileNameElement = document.getElementById('sidebarFileName');
-        let editor = null; // Variable to hold the Ace Editor instance
-
+        const runCompressionBtn = document.getElementById('runCompressionBtn'); // Get the run button
+        const generatedFileList = document.getElementById('generatedFileList'); // Get the generated file list container
         const outputArea = document.getElementById('outputArea');
         const originalFileSizeElement = document.getElementById('originalFileSize');
         const compressedFileSizeElement = document.getElementById('compressedFileSize');
         const compressionRatioElement = document.getElementById('compressionRatio');
-        const randomFileModal = document.getElementById('randomFileModal'); // Keep reference for the modal
-        const generateRandomFileBtn = document.getElementById('generateRandomFileBtn');
+        const randomFileModal = document.getElementById('randomFileModal');
         const closeModalBtn = document.getElementById('closeModal');
         const generateFileBtn = document.getElementById('generateFileBtn');
         const outputFileName = document.getElementById('outputFileName');
-        const downloadLink = document.getElementById('downloadLink');
-        const generatedFileInfo = document.getElementById('generatedFileInfo');
         const generatedFileNameElement = document.getElementById('generatedFileName');
-        const generateRandomFileButton = document.getElementById('generateRandomFileButton'); // New button
+        const generateRandomFileButton = document.getElementById('generateRandomFileButton');
+        const sidebar = document.getElementById('sidebar');
+        const compressionAlgorithmSelect = document.getElementById('compressionAlgorithm'); // Get the select element
+        const closeSidebarBtn = document.getElementById('closeSidebar');
+        const sidebarFileNameElement = document.getElementById('sidebarFileName');
+        const sidebarEditorElement = document.getElementById('sidebarEditor'); // Get the sidebar editor element
+        let selectedFile = null; // Variable to store the currently selected file
+        let editor = null; // Variable to hold the Ace Editor instance
 
-
-        // Trigger the hidden manual file input when the drag area is clicked (in addition to drag/drop)
-        dragArea.addEventListener('click', () => {
-            console.log('Drag area clicked, triggering file input.');
- manualFileInput.click();});
-
-
-
-        fileInput.addEventListener('change', (event) => {
- console.log('File selected via file input.');
- handleFile(event.target.files[0]);
-        });
-
-        dragArea.addEventListener('dragover', (event) => {
-            event.preventDefault();
-            dragArea.style.borderColor = '#1a73e8';
-        });
-
-        dragArea.addEventListener('dragleave', () => {
- console.log('Drag area mouse leave.');
-            dragArea.style.borderColor = '#dadce0';
-        });
-
-        dragArea.addEventListener('drop', (event) => {
-            event.preventDefault();
-            dragArea.style.borderColor = '#dadce0';
-            console.log('Drop event on drag area.');
-            if (event.dataTransfer.files.length > 0) {
-                console.log('Dropped item is a file.');
-                handleFile(event.dataTransfer.files[0]);
-            } else {
-                console.log('Dropped item is from within the page.');
-                // Handle the case where the dropped item is the generated file
-                const filename = event.dataTransfer.getData('text/plain');
-                handleGeneratedFileDrop(filename);
-            }
-        });
-
- manualFileInput.addEventListener('change', (event) => { // Handle file selection from the new manual input
-            handleFile(event.target.files[0]);
- console.log('File selected via manual file input.');
-        });
-
-        function handleFile(file) {
-            if (file) {
-                console.log("File selected:", file.name);
-                originalFileSizeElement.textContent = `Original Size: ${formatBytes(file.size)}`;
-                compressedFileSizeElement.textContent = '';
-                // Simulate file processing
-                progressBar.style.width = '0';
-                outputArea.style.display = 'none';
-
-                let progress = 0;
-                const interval = setInterval(() => {
-                    progress += 10;
-                    progressBar.style.width = progress + '%';
-                    if (progress >= 100) {
-                        clearInterval(interval);
-                        // Simulate compressed file size and ratio (replace with actual backend data)
-                        const simulatedCompressedSize = file.size * 0.5; // Example 50% compression
-                        displayOutputFile(file.name, file.size, simulatedCompressedSize);
-                    }
-                }, 200);
-            }
-        }
-
-        function displayOutputFile(originalFileName, originalSize, compressedSize) {
-            const compressedFileName = originalFileName + '.compressed'; // Example naming
-            compressedFileSizeElement.textContent = `Compressed Size: ${formatBytes(compressedSize)}`;
-            const ratio = ((originalSize - compressedSize) / originalSize) * 100;
-            compressionRatioElement.textContent = `Compression Ratio: ${ratio.toFixed(2)}%`;
-            outputFileName.textContent = `Your file "${compressedFileName}" is ready.`;
-            downloadLink.href = '#'; // Replace with actual download link from backend
-            outputArea.style.display = 'block';
-        }
-
+        // Helper function to format bytes
         function formatBytes(bytes, decimals = 2) {
             if (bytes === 0) return '0 Bytes';
             const k = 1024;
@@ -429,167 +130,517 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
         }
 
-        // Show the modal when the button is clicked
-        generateRandomFileButton.addEventListener('click', () => {
-            // Clear previous generated file info when opening the modal
- console.log('Generate Random File button clicked, opening modal.');
-            generatedFileInfo.style.display = 'none';
-            generatedFileNameElement.textContent = '';
+        let uploadedTemporaryFileName = null; // Variable to store the temporary filename after upload
 
-             randomFileModal.style.display = "flex"; // Use flex to center
-        });
+        // Function to handle file selection and upload
+        function handleFile(file) {
+            if (file) {
+                console.log("File selected:", file.name);
+                selectedFile = file; // Store the selected file
+                originalFileSizeElement.textContent = formatBytes(file.size);
+                compressedFileSizeElement.textContent = '';
+                compressionRatioElement.textContent = ''; // Clear previous ratio
+                outputFileName.textContent = ''; // Clear previous filename
+                progressBar.style.width = '0';
+                outputArea.style.display = 'none';
+                uploadedTemporaryFileName = null; // Clear previous temporary filename
 
-        // Hide the modal when the close button is clicked
- console.log('Close modal button clicked, closing modal.');
-        closeModalBtn.onclick = function() {
-            randomFileModal.style.display = "none";
-        }
+                const formData = new FormData();
+                formData.append('file', file); // Append the actual file object
 
-        // Hide the modal when clicking outside of it
-        window.onclick = function(event) {
-            if (event.target == randomFileModal) {
-                randomFileModal.style.display = "none";
+                // Simulate upload progress (you would get this from the backend in a real implementation)
+                let uploadProgress = 0;
+                const uploadInterval = setInterval(() => {
+                    uploadProgress += 10;
+                    progressBar.style.width = uploadProgress + '%';
+                    if (uploadProgress >= 100) { // Use uploadProgress here
+                        clearInterval(uploadInterval);
+
+                        // Once simulation is complete, send the file to the backend
+                        fetch('/upload', {
+                            method: 'POST',
+                            body: formData
+                        })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error(`HTTP error! status: ${response.status}`);
+                                }
+                                return response.text(); // Assuming backend returns the temporary filename as plain text
+                            })
+                            .then(tempFilename => {
+                                console.log('File uploaded temporarily:', tempFilename);
+                                uploadedTemporaryFileName = tempFilename; // Store the temporary filename
+                                progressBar.style.width = '0'; // Reset progress bar after upload
+                            })
+                            .catch(error => {
+                                console.error('Error during file upload:', error);
+                                alert(`File upload failed: ${error.message}`);
+                                progressBar.style.width = '0'; // Reset progress on error
+                            });
+                    }
+                }, 200);
             }
         }
 
-        // Event listener for generating random file
-        generateFileBtn.addEventListener('click', () => {
- console.log('Generate File button clicked, sending request to backend.');
-           
-
-            const fileSizeInput = document.getElementById('fileSize');
-            const fileSize = parseInt(fileSizeInput.value, 10);
-
-            if (isNaN(fileSize) || fileSize <= 0) {
-                alert('Please enter a valid positive number for the file size.');
-                return; // Stop the function execution if the input is invalid
-            }
-
-            const formData = new FormData();
-            formData.append('size', fileSize);
-
-
-
-            formData.append('size', fileSize);
-            fetch('/generateRandomFile', {
-                method: 'POST',
-                body: formData
-            })
-                .then(response => response.text())
-                .then(filename => {
-                    // Assuming the response text is just the filename
-                    randomFileModal.style.display = "none";
-
-                    // Clear previous compression results and any file selection related info
- console.log('Random file generated:', filename);
-                    generatedFileInfo.style.display = "block";
-                    generatedFileNameElement.textContent = filename;
-                    outputArea.style.display = 'none';
-                }) // <-- Closing curly brace for the fetch .then block
-                .catch(error => {
-                    console.error('Error generating file:', error);
-                    alert('Failed to generate file.');
-                });
-        }); // <-- Closing curly brace for the generateFileBtn event listener
-
-        // Function to handle the drop of a generated file
-        function handleGeneratedFileDrop(filename) {if (!filename) {
-                console.log('No filename provided for generated file drop.');
+        // Function to handle generated file as input for compression
+        async function handleGeneratedFileAsInput(filename) {
+            if (!filename) {
+                console.log('No filename provided for generated file input.');
                 return;
             }
+            console.log('Handling generated file as input:', filename);
 
-            // Here you would typically fetch the file content and then call openSidebarWithContent
-
-            console.log('Handling dropped generated file:', filename);
-
-            // Simulate file processing (replace with actual compression logic later)
-            progressBar.style.width = '0';
-            outputArea.style.display = 'none';
-
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += 10;
-                progressBar.style.width = progress + '%';
-                if (progress >= 100) {
-                    clearInterval(interval);
-                    // For now, just display the generated file info again after "processing"
-                    generatedFileInfo.style.display = 'block';
+            try {
+                // Fetch file details (specifically size) from the backend
+                const detailsResponse = await fetch(`/file-details/${filename}`);
+                if (!detailsResponse.ok) {
+                    throw new Error(`HTTP error! status: ${detailsResponse.status}`);
                 }
-            }, 200);
+                const fileDetails = await detailsResponse.json(); // Assuming backend returns JSON with { size: ... }
+
+                if (fileDetails.size === undefined) {
+                    throw new Error('File size not provided by backend.');
+                }
+
+                // Update the UI to show the generated file as the current input
+                selectedFile = { name: filename, size: fileDetails.size }; // Create a file-like object
+                originalFileSizeElement.textContent = formatBytes(fileDetails.size);
+                compressedFileSizeElement.textContent = '';
+                compressionRatioElement.textContent = '';
+                outputFileName.textContent = '';
+                progressBar.style.width = '0';
+                outputArea.style.display = 'none';
+                uploadedTemporaryFileName = filename; // Use the generated filename as the temporary filename
+
+                console.log('Generated file set as input:', selectedFile);
+
+            } catch (error) {
+                console.error('Error handling generated file as input:', error);
+                alert(`Failed to set generated file as input: ${error.message}`);
+                // Reset relevant UI elements on error
+                selectedFile = null;
+                uploadedTemporaryFileName = null;
+                originalFileSizeElement.textContent = '';
+            }
         }
 
-        // Function to handle the drop of a generated file
+        // Function to display output file information
+        // Function to display output file information
+        function displayOutputFile(compressedFileName, originalSize, compressedSize) {
+            compressedFileSizeElement.textContent = formatBytes(compressedSize);
+            const ratio = ((originalSize - compressedSize) / originalSize) * 100;
+            compressionRatioElement.textContent = `${ratio.toFixed(2)}%`;
+            outputFileName.textContent = `Your file "${compressedFileName}" is ready.`;
+            downloadLink.href = `/download/${compressedFileName}`; // Set href to a backend download endpoint
+            downloadLink.setAttribute('download', compressedFileName); // Set the download attribute for a suggested filename
+            outputArea.style.display = 'block';
+        }
+
+        // Function to handle the drop of a generated file (minimal implementation)
         function handleGeneratedFileDrop(filename) {
             if (!filename) {
                 console.log('No filename provided for generated file drop.');
                 return;
             }
-
             console.log('Handling dropped generated file:', filename);
+            // You would likely fetch the file content here and open in sidebar
+            // For now, just log
+        }
 
-            // Simulate file processing (replace with actual compression logic later)
+
+        // Function to open the random file generation modal
+        function openRandomFileModal() {
+            randomFileModal.style.display = "flex";
+        }
+
+        // Function to close the random file generation modal
+        function closeRandomFileModal() {
+            randomFileModal.style.display = "none";
+        }
+
+        // Function to generate random file (fetches from backend)
+        function generateRandomFile() {
+            console.log('Generate File button clicked, sending request to backend.');
+            const fileSizeInput = document.getElementById('fileSize');
+            const fileSize = parseInt(fileSizeInput.value, 10);
+
+            if (isNaN(fileSize) || fileSize <= 0) {
+                alert('Please enter a valid positive number for the file size.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('size', fileSize);
+
+            fetch('/generateRandomFile', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.text();
+                })
+                .then(filename => {
+                    closeRandomFileModal();
+                    console.log('Random file generated:', filename);
+ displayGeneratedFile(filename); // Display the generated file in the list
+                    outputArea.style.display = 'none';
+ handleGeneratedFileAsInput(filename); // Set the generated file as input for compression
+                })
+                .catch(error => {
+                    console.error('Error generating file:', error);
+                    alert(`Failed to generate file: ${error.message}`);
+                });
+        }
+
+        // Function to display a generated file in the list
+        function displayGeneratedFile(filename) {
+            generatedFileList.style.display = 'block'; // Show the list container
+
+            const fileItem = document.createElement('div');
+            fileItem.classList.add('generated-file-item');
+            fileItem.draggable = true; // Make the item draggable
+            fileItem.setAttribute('data-filename', filename); // Store filename for drag/drop
+
+            // Add drag start listener
+            fileItem.addEventListener('dragstart', (event) => {
+                event.dataTransfer.setData('text/plain', filename);
+            });
+
+            fileItem.innerHTML = `
+                <img src="https://www.gstatic.com/images/icons/material/system/1x/description_googblue_24dp.png" alt="File Icon" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 5px;">
+                <span class="generated-filename" style="vertical-align: middle;">${filename}</span>
+            `; // Added closing backtick here
+
+            // Add click listener to open sidebar
+            fileItem.addEventListener('click', () => {
+                fetchFileContent(filename);
+            });
+
+            generatedFileList.appendChild(fileItem); // Add the file item to the list
+        }
+
+        // Function to open the sidebar with file content
+        function openSidebarWithContent(filename, content) {
+            sidebarFileNameElement.textContent = filename;
+
+            // Add a check for potentially non-readable content
+            const isReadable = content.length < 10000 && /^[x00-x7F\r\n]*$/.test(content); // Basic check for size and ASCII characters including newline
+
+            if (isReadable) {
+                sidebarEditorElement.innerHTML = ''; // Clear previous content
+                editor = ace.edit("sidebarEditor");
+                editor.setTheme("ace/theme/chrome");
+                editor.session.setMode("ace/mode/plain_text");
+                editor.setValue(content, -1);
+                editor.setOptions({ readOnly: true, highlightActiveLine: false, highlightGutterLine: false });
+            } else {
+                sidebarEditorElement.innerHTML = '<p style="padding: 20px;">File content is not displayable.</p>';
+                if (editor) {
+                    editor.destroy();
+                    editor = null;
+                }
+            }
+
+            sidebar.style.right = '0';
+        }
+
+        // Function to fetch file content and open sidebar
+        function fetchFileContent(filename) {
+            if (filename) {
+                fetch(`/file/${filename}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.text();
+                    })
+                    .then(content => {
+                        console.log('Fetching file content:', filename);
+                        openSidebarWithContent(filename, content);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching file content:', error);
+                        alert(`Failed to load file content: ${error.message}`);
+                    });
+            }
+        }
+        // Function to close the sidebar
+        function closeSidebar() {
+            sidebar.style.right = '-400px'; // Match the sidebar width in CSS
+            if (editor) {
+                editor.destroy(); // Destroy the Ace editor instance when closing
+                editor = null;
+            }
+        }
+
+        // Event Listeners
+
+        // Trigger hidden file input on drag area click
+        dragArea.addEventListener('click', () => {
+            manualFileInput.click();
+        });
+
+        // Handle file selection from file inputs
+        fileInput.addEventListener('change', (event) => {
+            handleFile(event.target.files[0]);
+        });
+        manualFileInput.addEventListener('change', (event) => {
+            handleFile(event.target.files[0]);
+        });
+
+        // Drag and drop events for drag area
+        dragArea.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            dragArea.style.borderColor = '#1a73e8';
+        });
+        dragArea.addEventListener('dragleave', () => {
+            dragArea.style.borderColor = '#dadce0';
+        });
+        dragArea.addEventListener('drop', (event) => {
+            event.preventDefault();
+            dragArea.style.borderColor = '#dadce0';
+            if (event.dataTransfer && event.dataTransfer.files.length > 0) { // Check if dataTransfer exists and contains files
+                handleFile(event.dataTransfer.files[0]);
+            } else if (event.dataTransfer) { // If dataTransfer exists but no files, check for text data (generated filename)
+                const filename = event.dataTransfer.getData('text/plain');
+                handleGeneratedFileDrop(filename); // Call the function to handle dropped generated files
+            }
+        });
+
+        // Open random file modal
+        generateRandomFileButton.addEventListener('click', openRandomFileModal);
+
+        // Close random file modal
+        closeModalBtn.addEventListener('click', closeRandomFileModal);
+        window.addEventListener('click', (event) => {
+            if (event.target === randomFileModal) {
+                closeRandomFileModal();
+            }
+        });
+
+        // Generate random file on button click
+        generateFileBtn.addEventListener('click', generateRandomFile);
+
+        // Event listener for the Run Compression button (placeholder)
+        runCompressionBtn.addEventListener('click', () => {
+            if (!selectedFile) {
+                alert('Please select or upload a file first.');
+                return;
+            }
+            if (!uploadedTemporaryFileName) {
+                alert('Please wait for the file upload to complete.');
+                return;
+            }
+            const selectedAlgorithm = compressionAlgorithmSelect.value;
+            console.log('Run Compression button clicked with algorithm:', selectedAlgorithm, 'and temporary file:', uploadedTemporaryFileName);
+            const formData = new FormData();
+            formData.append('tempFilename', uploadedTemporaryFileName); // Send the temporary filename
+            formData.append('algorithm', selectedAlgorithm); // Send the selected algorithm
+
+            // Reset progress bar and output area
             progressBar.style.width = '0';
             outputArea.style.display = 'none';
 
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += 10;
-                progressBar.style.width = progress + '%';
-                if (progress >= 100) {
-                    clearInterval(interval);
-                    // For now, just display the generated file info again after "processing"
-                    generatedFileInfo.style.display = 'block';
+            // TODO: Implement actual progress updates from the backend
+
+            fetch('/compress', { // Your backend endpoint for compression
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json(); // Assuming backend returns JSON with compressed filename and sizes
+                })
+                .then(data => {
+                    // Check if the backend returned an error message
+                    if (data.error) {
+                        throw new Error(data.message || 'Unknown compression error');
+                    }
+                })
+                .then(data => {
+                    console.log('Compression successful:', data);
+                    // Assuming data contains: { compressedFilename: '...', originalSize: ..., compressedSize: ... }
+                    displayOutputFile(data.compressedFilename, data.originalSize, data.compressedSize);
+                    progressBar.style.width = '100%'; // Set progress to 100% on success
+                })
+                .catch(error => {
+                    console.error('Error during compression:', error);
+                    alert(`Compression failed: ${error.message}`);
+                    progressBar.style.width = '0'; // Reset progress on error
+                });
+            generatedFileList.appendChild(fileItem); // Add the file item to the list
+        })
+
+        // Function to open the sidebar with file content
+        function openSidebarWithContent(filename, content) {
+            sidebarFileNameElement.textContent = filename;
+
+            // Add a check for potentially non-readable content
+            const isReadable = content.length < 10000 && /^[x00-x7F\r\n]*$/.test(content); // Basic check for size and ASCII characters including newline
+
+            if (isReadable) {
+                sidebarEditorElement.innerHTML = ''; // Clear previous content
+                editor = ace.edit("sidebarEditor");
+                editor.setTheme("ace/theme/chrome");
+                editor.session.setMode("ace/mode/plain_text");
+                editor.setValue(content, -1);
+                editor.setOptions({ readOnly: true, highlightActiveLine: false, highlightGutterLine: false });
+            } else {
+                sidebarEditorElement.innerHTML = '<p style="padding: 20px;">File content is not displayable.</p>';
+                if (editor) {
+                    editor.destroy();
+                    editor = null;
                 }
-            }, 200);
+            }
+
+            sidebar.style.right = '0';
         }
 
-        // Event listener for clicking the generated file icon
-        document.getElementById('generatedFileIcon').addEventListener('click', () => {
-            const filename = generatedFileNameElement.textContent;
-                fetch(`/file/${filename}`) // This assumes the file is served from the root
-                    .then(response => response.text())
-                    .then(content => {
- console.log('Fetching generated file content:', filename);
-                        // Open content in a new popup window
-                        const popup = window.open('', '_blank', 'width=700,height=500,scrollbars=yes');
-                        if (popup) {
-                            popup.document.write(
-                                `
-                                <!DOCTYPE html>
-                                <html>
-                                <head>
-                                    <meta charset="UTF-8">
-                                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                                    <title>${filename}</title>
-                                    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-                                    <style>
-                                        .popup-content { font-family: 'Google Sans', sans-serif; padding: 20px; white-space: pre-wrap; word-wrap: break-word; overflow-y: auto; max-height: 95vh; }
-                                    </style>
-                                </head>
-                                <body>
-                                    <h3>${filename}</h3>
-                                    <div id="editor" style="width: 100%; height: 90vh;"></div>
-                                    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.4.12/src-noconflict/ace.js"></script>
-                                    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.4.12/src-noconflict/mode-plain_text.js"></script>
-                                    <script>var editor = ace.edit("editor"); editor.setTheme("ace/theme/chrome"); editor.session.setMode("ace/mode/plain_text"); editor.setValue(\`${content}\`, -1); editor.setOptions({ readOnly: true, highlightActiveLine: false, highlightGutterLine: false });</script>
-                                </html>
-                                `
-                             );
-
-                            popup.document.close();
-                        } else {
-                            alert('Could not open popup. Please allow popups for this site.');
+        // Function to fetch file content and open sidebar
+        function fetchFileContent(filename) {
+            if (filename) {
+                fetch(`/file/${filename}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
                         }
+                        return response.text();
                     })
-                    .catch(error => console.error('Error fetching file content:', error));
-            })
-    </script>
-    <script>
-        // Make the generated file info draggable
-        generatedFileInfo.addEventListener('dragstart', (event) => {
-            console.log('Generated file info drag started.');
-            event.dataTransfer.setData('text/plain', generatedFileNameElement.textContent);
+                    .then(content => {
+                        console.log('Fetching file content:', filename);
+                        openSidebarWithContent(filename, content);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching file content:', error);
+                        alert(`Failed to load file content: ${error.message}`);
+                    });
+            }
+        }
+        // Function to close the sidebar
+        function closeSidebar() {
+            sidebar.style.right = '-400px'; // Match the sidebar width in CSS
+            if (editor) {
+                editor.destroy(); // Destroy the Ace editor instance when closing
+                editor = null;
+            }
+        }
+
+        // Event Listeners
+
+        // Trigger hidden file input on drag area click
+        dragArea.addEventListener('click', () => {
+            manualFileInput.click();
         });
+
+        // Handle file selection from file inputs
+        fileInput.addEventListener('change', (event) => {
+            handleFile(event.target.files[0]);
+        });
+        manualFileInput.addEventListener('change', (event) => {
+            handleFile(event.target.files[0]);
+        });
+
+        // Drag and drop events for drag area
+        dragArea.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            dragArea.style.borderColor = '#1a73e8';
+        });
+        dragArea.addEventListener('dragleave', () => {
+            dragArea.style.borderColor = '#dadce0';
+        });
+        dragArea.addEventListener('drop', (event) => {
+            event.preventDefault();
+            dragArea.style.borderColor = '#dadce0';
+            if (event.dataTransfer.files.length > 0) {
+                handleFile(event.dataTransfer.files[0]);
+            } else {
+                const filename = event.dataTransfer.getData('text/plain');
+                handleGeneratedFileDrop(filename); // Minimal handling for now
+            }
+        });
+
+        // Open random file modal
+        generateRandomFileButton.addEventListener('click', openRandomFileModal);
+
+        // Close random file modal
+        closeModalBtn.addEventListener('click', closeRandomFileModal);
+        window.addEventListener('click', (event) => {
+            if (event.target === randomFileModal) {
+                closeRandomFileModal();
+            }
+        });
+
+        // Generate random file on button click
+        generateFileBtn.addEventListener('click', generateRandomFile);
+
+        // Event listener for the Run Compression button (placeholder)
+        runCompressionBtn.addEventListener('click', () => {
+            if (!selectedFile) {
+                alert('Please select or upload a file first.');
+                return;
+            }
+            if (!uploadedTemporaryFileName) {
+                alert('Please wait for the file upload to complete.');
+                return;
+            }
+            const selectedAlgorithm = compressionAlgorithmSelect.value;
+            console.log('Run Compression button clicked with algorithm:', selectedAlgorithm, 'and temporary file:', uploadedTemporaryFileName);
+            const formData = new FormData();
+            formData.append('tempFilename', uploadedTemporaryFileName); // Send the temporary filename
+            formData.append('algorithm', selectedAlgorithm); // Send the selected algorithm
+
+            // Reset progress bar and output area
+            progressBar.style.width = '0';
+            outputArea.style.display = 'none';
+
+            // TODO: Implement actual progress updates from the backend
+
+            fetch('/compress', { // Your backend endpoint for compression
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json(); // Assuming backend returns JSON with compressed filename and sizes
+                })
+                .then(data => {
+                    // Check if the backend returned an error message
+                    if (data.error) {
+                        throw new Error(data.message || 'Unknown compression error');
+                    }
+                })
+                .then(data => {
+                    console.log('Compression successful:', data);
+                    // Assuming data contains: { compressedFilename: '...', originalSize: ..., compressedSize: ... }
+                    displayOutputFile(data.compressedFilename, data.originalSize, data.compressedSize);
+                    progressBar.style.width = '100%'; // Set progress to 100% on success
+                })
+                .catch(error => {
+                    console.error('Error during compression:', error);
+                    alert(`Compression failed: ${error.message}`);
+                    progressBar.style.width = '0'; // Reset progress on error
+                });
+        });
+
+        // Close sidebar
+        closeSidebarBtn.addEventListener('click', closeSidebar);
+
+        // Close sidebar when clicking outside of it
+        window.addEventListener('click', (event) => { // Check if sidebar is open and the click is outside the sidebar and the generated file icon
+            if (sidebar.style.right === '0px' &&
+                !sidebar.contains(event.target)) {
+                closeSidebar();
+            }
+        });
+
     </script>
 </body>
+
 </html>
